@@ -15,6 +15,8 @@ curl -X GET  http://localhost:8080/objective/1
 
 # Data Model
 
+## Entities
+
 * Objective
   - id
   - description
@@ -36,8 +38,41 @@ curl -X GET  http://localhost:8080/objective/1
   - first_name
   - last_name
   - email
-* Period
+* Timespan
   - id
   - description
-  
+  - status
+* Comment
+  - id
+  - comment
+  - parent_id
+  - entity
 
+## Enums
+
+* ObjectiveStatus
+  - Proposed
+  - Active
+  - InProgress
+  - Achieved
+  - PartiallyAchieved
+  - Cancelled  
+* KrStatus
+  - Proposed
+  - Active
+  - InProgress
+  - Done
+  - Cancelled
+* Entity
+  - Objective
+  - Kr
+  - Comment
+* OrgLevel
+  - Company
+  - Mission
+  - Group
+  - Team
+* TimespanStatus
+  - Past
+  - Current
+  - Future

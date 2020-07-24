@@ -15,7 +15,9 @@ tags:
   - name: objective
     description: The O in OKRs 
   - name: kr
-    description: Key Result, the KR in ORKs
+    description: Key Result, the KR in OKRs
+  - name: comment
+    description: Comment. A comment can be tied to an Objective, a KR or another comment (reply).
 paths:
   '/objectives':
     get:
@@ -201,23 +203,46 @@ components:
     ObjectiveStatus:
       type: string
       enum: 
+        - Proposed
         - Active
+        - InProgress
         - Achieved
-        - In Progress
-        - Cancelled
+        - PartiallyAchieved
+        - Cancelled  
     KrStatus:
       type: string
       enum: 
+        - Proposed
         - Active
-        - Achieved
-        - In Progress
+        - InProgress
+        - Done
         - Cancelled
+    Entity:
+      type: string
+      enum:
+        - Objective
+        - Kr
+        - Comment
+    OrgLevel:
+      type: string
+      enum:
+        - Company
+        - Mission
+        - Group
+        - Team
+    TimespanStatus:
+      type: string
+      enum:
+        - Past
+        - Current
+        - Future
     Objective:
       type: object
       properties:
         id:
           type: integer
           format: int64
+          readOnly: true
         description:
           type: string
         organization_id:
@@ -226,16 +251,32 @@ components:
         parent_id:
           type: integer
           format: int64
+        timespan_id:
+          type: integer
+          format: int64
         status: 
           $ref: '#/components/schemas/ObjectiveStatus'
-        createdBy: 
+        created_by: 
           type: integer
+          readOnly: true
+        created:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_by: 
+          type: integer
+          readOnly: true
+        updated:
+          type: string
+          format: date-time
+          readOnly: true
     Kr:
       type: object
       properties:
         id:
           type: integer
           format: int64
+          readOnly: true
         description: 
           type: string
         baseline:
@@ -244,12 +285,53 @@ components:
           type: integer
           minimum: 0
           maximum: 100
-        majorInitiative:
+        result:
           type: string
-        objectiveId:
-          type: integer
-        createdBy: 
+        major_initiative:
+          type: string
+        objective_id:
           type: integer
         status:
           $ref: '#/components/schemas/KrStatus'
-
+        created_by: 
+          type: integer
+          readOnly: true
+        created:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_by: 
+          type: integer
+          readOnly: true
+        updated:
+          type: string
+          format: date-time
+          readOnly: true
+    Comment:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          readOnly: true
+        comment: 
+          type: string
+        entity_type:
+          $ref: '#/components/schemas/Entity'
+        entity_id:
+          type: integer
+        created_by: 
+          type: integer
+          readOnly: true
+        created:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_by: 
+          type: integer
+          readOnly: true
+        updated:
+          type: string
+          format: date-time
+          readOnly: true
+        
