@@ -3,7 +3,8 @@
 # generate server stubs
 
 go to `~/dev/spg-specs` and run `./gradlew build`, the jar will be in this project. 
-copy it to the current project. `cp ~/dev/spg-specs/build/okr/java/server/build/libs/okr-server-1.0.0.jar ~/dev/okr/libs`
+copy it to the current project. 
+`cp ~/dev/spg-specs/build/okr/java/server/build/libs/okr-server-1.0.0.jar ~/dev/okr/libs`
 
 # useful curls
 
@@ -21,9 +22,13 @@ curl -X GET  http://localhost:8080/objective/1
   - id
   - description
   - status
-  - period_id
+  - planning_period_id
   - parent_id
   - organization_id
+  - created_by
+  - created
+  - updated_by
+  - updated
 * Kr
   - id
   - description
@@ -33,12 +38,16 @@ curl -X GET  http://localhost:8080/objective/1
   - status
   - objective_id
   - score
+  - created_by
+  - created
+  - updated_by
+  - updated
 * User
   - id
   - first_name
   - last_name
   - email
-* Timespan
+* PlanningPeriod
   - id
   - description
   - status
@@ -47,6 +56,15 @@ curl -X GET  http://localhost:8080/objective/1
   - comment
   - parent_id
   - entity
+  - created_by
+  - created
+  - updated_by
+  - updated
+* Organization
+  - id
+  - name
+  - org_level
+  - parent_id
 
 ## Enums
 

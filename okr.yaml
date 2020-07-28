@@ -8,9 +8,10 @@ info:
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
-  version: 1.0.0
+  version: 1.0.1
 servers:
   - url: https://okr.nyt.net
+  - url: https://okr.stg.nyt.net
 tags:
   - name: objective
     description: The O in OKRs 
@@ -19,11 +20,31 @@ tags:
   - name: comment
     description: Comment. A comment can be tied to an Objective, a KR or another comment (reply).
 paths:
-  '/objectives':
+  /objective:
     get:
       tags:
         - objective
-      description: Returns all objectives
+      summary: Get list of objectives
+      description: Returns all objectives, filter by org, status or planning period.
+      operationId: getObjective
+      parameters:
+        - in: query
+          name: org
+          schema:
+            type: integer
+            format: int64
+          description: Filter objectives based on org id.
+        - in: query
+          name: planning_period
+          schema:
+            type: integer
+            format: int64
+          description: Filter objectives based on planning period.
+        - in: query
+          name: status
+          schema:
+            type: string
+          description: Filter objectives based on objective status.
       responses:
         '200':
           description: A list of objectives.
@@ -33,7 +54,6 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Objective'
-  /objective:
     post:
       tags:
         - objective
@@ -70,7 +90,7 @@ paths:
           description: Objective not found
         '405':
           description: Validation exception
-  '/objective/{objectiveId}':
+  /objective/{objectiveId}:
     get:
       tags:
         - objective
@@ -120,10 +140,39 @@ paths:
           description: Invalid ID supplied
         '404':
           description: Objective not found
+  /objective/{objectiveId}/comments:
+    get:
+      tags:
+        - objective
+        - comment
+      summary: Get comments for an objective
+      operationId: getCommentsByObjective
+      parameters:
+        - name: objectiveId
+          in: path
+          required: true
+          description: Objective Id for which to get KRs
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Comment'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Objective not found
   /objective/{objectiveId}/krs:
     get:
       tags:
         - kr
+        - objective
       summary: Get key results for an objective
       operationId: getKrsById
       parameters:
@@ -136,7 +185,7 @@ paths:
             format: int64
       responses:
         '200':
-          description: successful operatoin
+          description: successful operation
           content:
             application/json:
               schema:
@@ -147,6 +196,7 @@ paths:
           description: Invalid ID supplied
         '404':
           description: Objective not found
+        
   /kr:
     post:
       tags:
@@ -178,7 +228,7 @@ paths:
       responses:
         '405':
           description: Invalid input
-  '/kr/{krId}':
+  /kr/{krId}:
     delete:
       tags:
         - kr
@@ -188,7 +238,7 @@ paths:
         - name: krId
           in: path
           required: true
-          description: KR Id for which to get KRs
+          description: KR Id to be deleted
           schema:
             type: integer
             format: int64
@@ -197,7 +247,115 @@ paths:
           description: Invalid ID supplied
         '404':
           description: KR not found
+  /kr/{krId}/comments:
+    get:
+      tags:
+        - kr
+        - comment
+      summary: Get comments for a key result
+      operationId: getCommentsByKr
+      parameters:
+        - name: krId
+          in: path
+          required: true
+          description: Kr Id for which to get Comments
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Comment'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Objective not found
         
+  /comment:
+    post:
+      tags:
+        - comment
+      summary: Create a comment
+      operationId: createComment
+      requestBody:
+        description: Comment object that needs to be added to an entity.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Comment'
+        required: true
+      responses:
+        '405':
+          description: Invalid input      
+    put:
+      tags:
+        - comment
+      summary: Update existing comment
+      operationId: updateComment
+      requestBody:
+        description: Comment object to update.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Comment'
+        required: true
+      responses:
+        '405':
+          description: Invalid input
+  /comment/{commentId}:
+    delete:
+      tags:
+        - comment
+      summary: Delete a comment
+      operationId: deleteComment
+      parameters:
+        - name: commentId
+          in: path
+          required: true
+          description: Comment Id to be deleted.
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Comment not found
+
+  /comment/{commentId}/replies:
+    get:
+      tags:
+        - comment
+      summary: Get replies for a comment
+      operationId: getCommentsByComment
+      parameters:
+        - name: commentId
+          in: path
+          required: true
+          description: Commment Id for which to get Comments
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Comment'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Objective not found
+        
+
 components:
   schemas:
     ObjectiveStatus:
@@ -217,7 +375,7 @@ components:
         - InProgress
         - Done
         - Cancelled
-    Entity:
+    EntityType:
       type: string
       enum:
         - Objective
@@ -230,7 +388,7 @@ components:
         - Mission
         - Group
         - Team
-    TimespanStatus:
+    PlanningPeriodStatus:
       type: string
       enum:
         - Past
@@ -251,7 +409,7 @@ components:
         parent_id:
           type: integer
           format: int64
-        timespan_id:
+        planning_period_id:
           type: integer
           format: int64
         status: 
@@ -317,7 +475,7 @@ components:
         comment: 
           type: string
         entity_type:
-          $ref: '#/components/schemas/Entity'
+          $ref: '#/components/schemas/EntityType'
         entity_id:
           type: integer
         created_by: 
